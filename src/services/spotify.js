@@ -274,7 +274,21 @@ export async function previousTrack() {
   return res.ok || res.status === 204;
 }
 
-// 12. Get Playback State
+// 12. Set Volume (0-100)
+export async function setSpotifyVolume(volumePercent) {
+  const clamped = Math.max(0, Math.min(100, Math.round(volumePercent)));
+  try {
+    const res = await spotifyFetch(`/me/player/volume?volume_percent=${clamped}`, {
+      method: 'PUT',
+    });
+    return res.ok || res.status === 204;
+  } catch (err) {
+    console.warn('Set volume warning:', err);
+    return false;
+  }
+}
+
+// 13. Get Playback State
 export async function getPlaybackState() {
   const res = await spotifyFetch('/me/player');
   if (res.status === 204 || !res.ok) return null;

@@ -9,6 +9,7 @@ import {
   nextTrack,
   previousTrack,
   setRepeatMode,
+  setSpotifyVolume,
   logout,
 } from '../services/spotify';
 import { SPOTIFY_CONFIG } from '../config/spotify';
@@ -18,6 +19,9 @@ export function useSpotifyPlayer() {
   const [isReady, setIsReady] = useState(false);
   const [deviceId, setDeviceId] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolumeState] = useState(0.8);
+  const [isMuted, setIsMuted] = useState(false);
+  const [prevVolume, setPrevVolume] = useState(0.8);
   const [currentTrack, setCurrentTrack] = useState({
     title: 'Ganga Music Experience',
     artist: 'Connect Spotify to start playback',
@@ -235,15 +239,47 @@ export function useSpotifyPlayer() {
     }
   }, [isAuthenticated]);
 
+  // Volume & Mute Handlers
+  const setVolume = useCallback(async (val) => {
+    const clamped = Math.max(0, Math.min(1, val));
+    setVolumeState(clamped);
+    if (clamped > 0) setIsMuted(false);
+
+    if (playerRef.current) {
+      try {
+        await playerRef.current.setVolume(clamped);
+      } catch (e) {
+        console.warn('SDK setVolume failed:', e);
+      }
+    }
+    await setSpotifyVolume(clamped * 100);
+  }, []);
+
+  const toggleMute = useCallback(async () => {
+    if (isMuted) {
+      const restored = prevVolume > 0 ? prevVolume : 0.8;
+      setIsMuted(false);
+      await setVolume(restored);
+    } else {
+      setPrevVolume(volume);
+      setIsMuted(true);
+      await setVolume(0);
+    }
+  }, [isMuted, volume, prevVolume, setVolume]);
+
   return {
     isAuthenticated,
     isReady,
     isPlaying,
     currentTrack,
+    volume,
+    isMuted,
     error,
     connect,
     togglePlay,
     next,
     prev,
+    setVolume,
+    toggleMute,
   };
 }

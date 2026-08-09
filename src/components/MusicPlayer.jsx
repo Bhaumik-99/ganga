@@ -1,6 +1,7 @@
 import AlbumArtwork from './AlbumArtwork';
 import TrackInfo from './TrackInfo';
 import PlayerControls from './PlayerControls';
+import VolumeControl from './VolumeControl';
 import { useSpotifyPlayer } from '../hooks/useSpotifyPlayer';
 
 export default function MusicPlayer() {
@@ -8,11 +9,15 @@ export default function MusicPlayer() {
     isAuthenticated,
     isPlaying,
     currentTrack,
+    volume,
+    isMuted,
     error,
     connect,
     togglePlay,
     next,
     prev,
+    setVolume,
+    toggleMute,
   } = useSpotifyPlayer();
 
   return (
@@ -24,7 +29,7 @@ export default function MusicPlayer() {
           isPlaying ? 'animate-float' : ''
         }`}
         style={{
-          width: 'clamp(340px, 92vw, 640px)',
+          width: 'clamp(340px, 92vw, 680px)',
           borderRadius: 'var(--player-radius)',
           background:
             'linear-gradient(135deg, rgba(80, 32, 18, 0.78), rgba(45, 18, 10, 0.86))',
@@ -42,7 +47,7 @@ export default function MusicPlayer() {
         )}
 
         {/* Main player bar content */}
-        <div className="w-full flex items-center justify-between gap-3 md:gap-5 px-5 md:px-7 py-3 md:py-4">
+        <div className="w-full flex items-center justify-between gap-3 md:gap-4 px-4 md:px-6 py-3 md:py-4">
           {/* Left: Album artwork */}
           <div className="shrink-0 flex items-center justify-center">
             <AlbumArtwork
@@ -61,8 +66,8 @@ export default function MusicPlayer() {
             />
           </div>
 
-          {/* Right: Controls or Connect Spotify */}
-          <div className="shrink-0 flex items-center justify-end -translate-x-3 md:-translate-x-6">
+          {/* Right: Controls & UX-Researched Volume Control */}
+          <div className="shrink-0 flex items-center gap-3 md:gap-4">
             {!isAuthenticated ? (
               <button
                 onClick={connect}
@@ -74,12 +79,25 @@ export default function MusicPlayer() {
                 Connect Spotify
               </button>
             ) : (
-              <PlayerControls
-                isPlaying={isPlaying}
-                onToggle={togglePlay}
-                onPrev={prev}
-                onNext={next}
-              />
+              <>
+                <PlayerControls
+                  isPlaying={isPlaying}
+                  onToggle={togglePlay}
+                  onPrev={prev}
+                  onNext={next}
+                />
+
+                {/* Vertical Separator */}
+                <div className="w-[1px] h-5 bg-white/10 shrink-0 hidden sm:block" />
+
+                {/* UX Researched Expandable Volume Control */}
+                <VolumeControl
+                  volume={volume}
+                  isMuted={isMuted}
+                  onVolumeChange={setVolume}
+                  onToggleMute={toggleMute}
+                />
+              </>
             )}
           </div>
         </div>
