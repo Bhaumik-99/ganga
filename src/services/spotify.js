@@ -207,10 +207,14 @@ export async function setRepeatMode(state = 'context') {
   }
 }
 
-// 8. Play Track / Playlist with Repeat Mode & Direct Track URIs Fallback
+// 8. Play Track / Playlist (Strictly locking to explicit track URIs)
 export async function playTrack(deviceId, uri, trackUris = []) {
   let body;
-  if (uri) {
+
+  // Primary: Pass exact track URIs array from the playlist to strictly lock playback to playlist tracks only
+  if (trackUris && trackUris.length > 0) {
+    body = { uris: trackUris };
+  } else if (uri) {
     if (uri.startsWith('spotify:track:')) {
       body = { uris: [uri] };
     } else {
@@ -219,8 +223,6 @@ export async function playTrack(deviceId, uri, trackUris = []) {
         offset: { position: 0 },
       };
     }
-  } else if (trackUris && trackUris.length > 0) {
-    body = { uris: trackUris };
   }
 
   const endpoint = deviceId ? `/me/player/play?device_id=${deviceId}` : '/me/player/play';
@@ -229,12 +231,12 @@ export async function playTrack(deviceId, uri, trackUris = []) {
     body: body ? JSON.stringify(body) : undefined,
   });
 
-  // Fallback: If context_uri fails, try playing track URIs directly
-  if (!res.ok && trackUris && trackUris.length > 0) {
-    console.warn('context_uri play failed, attempting direct track URIs fallback...');
+  // Fallback: If uris fail, try context_uri
+  if (!res.ok && uri && !uri.startsWith('spotify:track:')) {
+    console.warn('Direct URIs play failed, attempting context_uri fallback...');
     res = await spotifyFetch(endpoint, {
       method: 'PUT',
-      body: JSON.stringify({ uris: trackUris }),
+      body: JSON.stringify({ context_uri: uri, offset: { position: 0 } }),
     });
   }
 
@@ -250,7 +252,7 @@ export async function playTrack(deviceId, uri, trackUris = []) {
     throw new Error(errorDetail || `Spotify API playback failed (${res.status})`);
   }
 
-  // Force repeat mode to 'context' so Spotify loops playlist instead of playing random radio autoplay
+  // Force repeat mode to 'context' so Spotify loops playlist tracks instead of radio autoplay
   await setRepeatMode('context');
 
   return true;

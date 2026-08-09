@@ -32,6 +32,16 @@ export function useSpotifyPlayer() {
   const [trackUris, setTrackUris] = useState([]);
 
   const playerRef = useRef(null);
+  const trackUrisRef = useRef([]);
+  const playlistUriRef = useRef(`spotify:playlist:${SPOTIFY_CONFIG.playlistId}`);
+
+  useEffect(() => {
+    trackUrisRef.current = trackUris;
+  }, [trackUris]);
+
+  useEffect(() => {
+    playlistUriRef.current = playlistUri;
+  }, [playlistUri]);
 
   // Check auth status on mount
   useEffect(() => {
@@ -100,7 +110,7 @@ export function useSpotifyPlayer() {
           setIsReady(false);
         });
 
-        player.addListener('player_state_changed', (state) => {
+        player.addListener('player_state_changed', async (state) => {
           if (!state) return;
 
           const track = state.track_window.current_track;
@@ -114,6 +124,22 @@ export function useSpotifyPlayer() {
                 track.album.images[0]?.url ||
                 '/images/ChatGPT%20Image%20Aug%2010,%202026,%2012_09_56%20AM.png',
             });
+
+            // Strict Playlist Enforcer: If Spotify attempts to play a track outside your playlist,
+            // force-restart playback back to Track #1 of your playlist
+            if (
+              trackUrisRef.current &&
+              trackUrisRef.current.length > 0 &&
+              !trackUrisRef.current.includes(track.uri)
+            ) {
+              console.warn('Detected non-playlist track. Force resetting playback to playlist...');
+              try {
+                await playTrack(device_id, playlistUriRef.current, trackUrisRef.current);
+              } catch (e) {
+                console.warn('Strict playlist reset warning:', e);
+              }
+              return;
+            }
           }
 
           setIsPlaying(!state.paused);
