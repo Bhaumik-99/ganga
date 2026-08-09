@@ -1,0 +1,74 @@
+import { useState, useEffect } from 'react';
+
+export default function TopStatusBar() {
+  const [time, setTime] = useState('');
+
+  useEffect(() => {
+    const updateClock = () => {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const ampm = hours >= 12 ? 'pm' : 'am';
+      hours = hours % 12 || 12;
+      setTime(`${hours}:${minutes} ${ampm}`);
+    };
+
+    updateClock();
+    const interval = setInterval(updateClock, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <header
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 md:px-10 md:py-5 animate-fade-in"
+      style={{ fontFamily: 'var(--font-ui)' }}
+    >
+      {/* Left — Clock */}
+      <div
+        className="text-xs md:text-sm tracking-widest uppercase"
+        style={{ color: 'var(--color-white-soft)' }}
+      >
+        {time}
+      </div>
+
+      {/* Center — Online Status */}
+      <div className="flex items-center gap-2">
+        <span
+          className="inline-block w-2 h-2 rounded-full"
+          style={{
+            backgroundColor: '#4ade80',
+            boxShadow: '0 0 8px var(--color-green-glow), 0 0 20px var(--color-green-glow)',
+          }}
+        />
+        <span
+          className="text-xs md:text-sm tracking-wide"
+          style={{ color: 'var(--color-white-soft)' }}
+        >
+          <span className="hidden sm:inline">● </span>37 online
+        </span>
+      </div>
+
+      {/* Right — Music Links */}
+      <div className="flex items-center gap-4 md:gap-6">
+        <a
+          href="https://open.spotify.com/playlist/5dOAUCQfVbge7lodjgUGXq?si=Htv-Mc-qR8m_GKoIsOy2sA"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs md:text-sm tracking-wide transition-all duration-300 hover:brightness-125"
+          style={{ color: 'var(--color-cream-dim)' }}
+        >
+          Spotify <span className="text-[10px]">↗</span>
+        </a>
+        <a
+          href="https://music.youtube.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs md:text-sm tracking-wide transition-all duration-300 hover:brightness-125"
+          style={{ color: 'var(--color-cream-dim)' }}
+        >
+          YT Music <span className="text-[10px]">↗</span>
+        </a>
+      </div>
+    </header>
+  );
+}

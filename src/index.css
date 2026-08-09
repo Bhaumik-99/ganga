@@ -1,0 +1,311 @@
+/* ========================================
+   GOOGLE FONTS
+   ======================================== */
+@import url('https://fonts.googleapis.com/css2?family=Rozha+One&family=Yatra+One&family=Tiro+Devanagari+Hindi:ital@0;1&family=Inter:wght@300;400;500;600&display=swap');
+
+@import "tailwindcss";
+
+/* ========================================
+   DESIGN TOKENS
+   ======================================== */
+:root {
+  --color-cream: #F5F0E8;
+  --color-cream-dim: rgba(245, 240, 232, 0.6);
+  --color-terracotta: rgba(139, 55, 35, 0.55);
+  --color-terracotta-deep: rgba(100, 35, 20, 0.7);
+  --color-brown-muted: #8B7355;
+  --color-brown-warm: rgba(120, 70, 45, 0.4);
+  --color-shadow-warm: rgba(60, 25, 10, 0.35);
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-border-warm: rgba(255, 255, 255, 0.12);
+  --color-green-glow: rgba(74, 222, 128, 0.6);
+  --color-white-soft: rgba(255, 255, 255, 0.92);
+
+  --font-hindi: 'Rozha One', 'Yatra One', 'Tiro Devanagari Hindi', serif;
+  --font-ui: 'Inter', system-ui, sans-serif;
+
+  --player-blur: 12px;
+  --player-radius: 60px;
+}
+
+/* ========================================
+   GLOBAL RESET
+   ======================================== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-ui);
+  color: var(--color-cream);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: #1a0e08;
+}
+
+/* ========================================
+   SCROLLBAR HIDE
+   ======================================== */
+::-webkit-scrollbar { display: none; }
+
+/* ========================================
+   SELECTION
+   ======================================== */
+::selection {
+  background: rgba(139, 55, 35, 0.5);
+  color: var(--color-cream);
+}
+
+/* ========================================
+   KEYFRAME ANIMATIONS
+   ======================================== */
+
+/* Slow spin for album artwork */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Subtle pulse for play button */
+@keyframes pulse-subtle {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 240, 232, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 16px 4px rgba(245, 240, 232, 0.15);
+  }
+}
+
+/* Floating movement */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Fade up entrance */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade in */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Slide up for player */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Film grain flicker */
+@keyframes grain-shift {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-2%, -3%); }
+  20% { transform: translate(3%, 1%); }
+  30% { transform: translate(-1%, 4%); }
+  40% { transform: translate(4%, -2%); }
+  50% { transform: translate(-3%, 2%); }
+  60% { transform: translate(2%, -4%); }
+  70% { transform: translate(-4%, 3%); }
+  80% { transform: translate(1%, -1%); }
+  90% { transform: translate(3%, -3%); }
+}
+
+/* Background image subtle zoom entrance */
+@keyframes bg-hero-zoom {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.animate-spin-slow.paused {
+  animation-play-state: paused;
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2.5s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-fade-up {
+  animation: fade-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+  opacity: 0;
+}
+
+.animate-bg-zoom {
+  animation: bg-hero-zoom 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+
+/* ========================================
+   FILM GRAIN OVERLAY
+   ======================================== */
+.grain-overlay::after {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1000;
+  animation: grain-shift 0.5s steps(6) infinite;
+  opacity: 0.5;
+}
+
+/* ========================================
+   VIGNETTE OVERLAY
+   ======================================== */
+.vignette-overlay::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 50%,
+    rgba(10, 5, 2, 0.45) 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ========================================
+   PROGRESS BAR CUSTOM STYLES
+   ======================================== */
+.progress-track {
+  position: relative;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: height 0.2s ease;
+}
+
+.progress-track:hover {
+  height: 5px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--color-cream);
+  border-radius: 999px;
+  transition: width 0.1s linear;
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-cream);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.progress-track:hover .progress-fill::after {
+  opacity: 1;
+}
+
+/* ========================================
+   VOLUME SLIDER
+   ======================================== */
+.volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 72px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-cream);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.3);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-cream);
+  border: none;
+  cursor: pointer;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .grain-overlay::after {
+    opacity: 0.3;
+  }
+}
