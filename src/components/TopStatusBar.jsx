@@ -31,8 +31,8 @@ export default function TopStatusBar() {
         {time}
       </div>
 
-      {/* Right — Music Links */}
-      <div className="flex items-center gap-4 md:gap-6">
+      {/* Right — Spotify Music Link */}
+      <div className="flex items-center">
         <a
           href="https://open.spotify.com/playlist/5dOAUCQfVbge7lodjgUGXq?si=Htv-Mc-qR8m_GKoIsOy2sA"
           target="_blank"
@@ -41,15 +41,6 @@ export default function TopStatusBar() {
           style={{ color: 'var(--color-cream-dim)' }}
         >
           Spotify <span className="text-[10px]">↗</span>
-        </a>
-        <a
-          href="https://music.youtube.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs md:text-sm tracking-wide transition-all duration-300 hover:brightness-125 font-medium"
-          style={{ color: 'var(--color-cream-dim)' }}
-        >
-          YT Music <span className="text-[10px]">↗</span>
         </a>
       </div>
     </header>
