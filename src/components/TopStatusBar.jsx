@@ -34,7 +34,7 @@ export default function TopStatusBar() {
       {/* Right — Spotify Music Link */}
       <div className="flex items-center">
         <a
-          href="https://open.spotify.com/playlist/5dOAUCQfVbge7lodjgUGXq?si=Htv-Mc-qR8m_GKoIsOy2sA"
+          href="https://open.spotify.com/playlist/5dOAUCQfVbge7lodjgUGXq?si=c73mjsxcR5Cg4-CC9ZnL3g"
           target="_blank"
           rel="noopener noreferrer"
           className="text-xs md:text-sm tracking-wide transition-all duration-300 hover:brightness-125 font-medium"
