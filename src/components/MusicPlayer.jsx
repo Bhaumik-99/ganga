@@ -62,7 +62,7 @@ export default function MusicPlayer() {
           </div>
 
           {/* Right: Controls or Connect Spotify */}
-          <div className="shrink-0 flex items-center justify-end">
+          <div className="shrink-0 flex items-center justify-end -translate-x-3 md:-translate-x-6">
             {!isAuthenticated ? (
               <button
                 onClick={connect}
