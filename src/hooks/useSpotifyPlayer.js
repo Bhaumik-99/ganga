@@ -32,16 +32,6 @@ export function useSpotifyPlayer() {
   const [trackUris, setTrackUris] = useState([]);
 
   const playerRef = useRef(null);
-  const trackUrisRef = useRef([]);
-  const playlistUriRef = useRef(`spotify:playlist:${SPOTIFY_CONFIG.playlistId}`);
-
-  useEffect(() => {
-    trackUrisRef.current = trackUris;
-  }, [trackUris]);
-
-  useEffect(() => {
-    playlistUriRef.current = playlistUri;
-  }, [playlistUri]);
 
   // Check auth status on mount
   useEffect(() => {
@@ -96,7 +86,7 @@ export function useSpotifyPlayer() {
           setIsReady(true);
           setError(null);
 
-          // Transfer playback to Web Player and set repeat mode
+          // Initial playback transfer to Web Player
           try {
             await transferPlayback(device_id, false);
             await setRepeatMode('context');
@@ -110,7 +100,7 @@ export function useSpotifyPlayer() {
           setIsReady(false);
         });
 
-        player.addListener('player_state_changed', async (state) => {
+        player.addListener('player_state_changed', (state) => {
           if (!state) return;
 
           const track = state.track_window.current_track;
@@ -124,21 +114,6 @@ export function useSpotifyPlayer() {
                 track.album.images[0]?.url ||
                 '/images/ChatGPT%20Image%20Aug%2010,%202026,%2012_09_56%20AM.png',
             });
-
-            // Prevent Spotify from playing random radio tracks outside configured playlist
-            if (
-              trackUrisRef.current &&
-              trackUrisRef.current.length > 0 &&
-              !trackUrisRef.current.includes(track.uri)
-            ) {
-              console.warn('Track outside playlist detected. Loop restarting playlist...');
-              try {
-                await playTrack(device_id, playlistUriRef.current, trackUrisRef.current);
-              } catch (err) {
-                console.warn('Restart playlist error:', err);
-              }
-              return;
-            }
           }
 
           setIsPlaying(!state.paused);
@@ -202,11 +177,20 @@ export function useSpotifyPlayer() {
     }
 
     try {
+      setError(null);
       if (isPlaying) {
         await pausePlayback();
         setIsPlaying(false);
       } else {
-        setError(null);
+        // Seamlessly re-transfer playback back to website Web Player device
+        if (deviceId) {
+          try {
+            await transferPlayback(deviceId, true);
+          } catch (e) {
+            console.warn('Re-transfer playback before play:', e);
+          }
+        }
+
         const targetPlaylist = playlistUri || `spotify:playlist:${SPOTIFY_CONFIG.playlistId}`;
         const ok = await playTrack(deviceId, targetPlaylist, trackUris);
         if (ok) {
@@ -224,20 +208,26 @@ export function useSpotifyPlayer() {
   const next = useCallback(async () => {
     if (!isAuthenticated) return;
     try {
+      if (deviceId) {
+        await transferPlayback(deviceId, true);
+      }
       await nextTrack();
     } catch (err) {
       console.error('Next track error:', err);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, deviceId]);
 
   const prev = useCallback(async () => {
     if (!isAuthenticated) return;
     try {
+      if (deviceId) {
+        await transferPlayback(deviceId, true);
+      }
       await previousTrack();
     } catch (err) {
       console.error('Prev track error:', err);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, deviceId]);
 
   // Volume & Mute Handlers
   const setVolume = useCallback(async (val) => {
