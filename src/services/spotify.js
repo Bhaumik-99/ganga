@@ -162,7 +162,7 @@ async function spotifyFetch(endpoint, options = {}) {
 // 6. Get Playlist Tracks
 export async function getPlaylistDetails(playlistId = SPOTIFY_CONFIG.playlistId) {
   const res = await spotifyFetch(`/playlists/${playlistId}`);
-  if (!res.ok) throw new Error('Failed to fetch playlist');
+  if (!res.ok) throw new Error('Failed to fetch playlist details');
   const data = await res.json();
 
   const tracks = data.tracks.items
@@ -197,10 +197,15 @@ export async function transferPlayback(deviceId, play = true) {
 }
 
 // 8. Play Track / Playlist
-export async function playTrack(deviceId, playlistUri, position = 0) {
-  const body = playlistUri
-    ? { context_uri: playlistUri, offset: { position } }
-    : undefined;
+export async function playTrack(deviceId, uri) {
+  let body;
+  if (uri) {
+    if (uri.startsWith('spotify:track:')) {
+      body = { uris: [uri] };
+    } else {
+      body = { context_uri: uri };
+    }
+  }
 
   const endpoint = deviceId ? `/me/player/play?device_id=${deviceId}` : '/me/player/play';
   const res = await spotifyFetch(endpoint, {
@@ -208,7 +213,19 @@ export async function playTrack(deviceId, playlistUri, position = 0) {
     body: body ? JSON.stringify(body) : undefined,
   });
 
-  return res.ok || res.status === 204;
+  if (!res.ok && res.status !== 204) {
+    let errorDetail = '';
+    try {
+      const errData = await res.json();
+      errorDetail = errData.error?.message || JSON.stringify(errData);
+      console.warn('Spotify playTrack error details:', errData);
+    } catch {
+      console.warn('Spotify playTrack failed with HTTP status:', res.status);
+    }
+    throw new Error(errorDetail || `Spotify API playback failed (${res.status})`);
+  }
+
+  return true;
 }
 
 // 9. Pause Playback

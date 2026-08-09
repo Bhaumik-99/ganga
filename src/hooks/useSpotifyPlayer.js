@@ -18,12 +18,12 @@ export function useSpotifyPlayer() {
   const [deviceId, setDeviceId] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState({
-    title: 'Mujhse Mohabbat Ka Izhaar Karta',
-    artist: 'Satrang Music Official',
+    title: 'Ganga Music Experience',
+    artist: 'Connect Spotify to start playback',
     artwork: '/images/ChatGPT%20Image%20Aug%2010,%202026,%2012_09_56%20AM.png',
   });
   const [error, setError] = useState(null);
-  const [playlistUri, setPlaylistUri] = useState(null);
+  const [playlistUri, setPlaylistUri] = useState(`spotify:playlist:${SPOTIFY_CONFIG.playlistId}`);
 
   const playerRef = useRef(null);
 
@@ -40,13 +40,14 @@ export function useSpotifyPlayer() {
 
     getPlaylistDetails(SPOTIFY_CONFIG.playlistId)
       .then((data) => {
-        setPlaylistUri(data.uri);
-        if (data.tracks && data.tracks.length > 0 && !currentTrack.title) {
+        if (data.uri) setPlaylistUri(data.uri);
+        if (data.tracks && data.tracks.length > 0) {
           setCurrentTrack(data.tracks[0]);
         }
       })
       .catch((err) => {
-        console.warn('Failed to load Spotify playlist:', err);
+        console.warn('Failed to load Spotify playlist metadata:', err);
+        setError('Playlist not found or private. Ensure playlist is Public on Spotify.');
       });
   }, [isAuthenticated]);
 
@@ -101,7 +102,9 @@ export function useSpotifyPlayer() {
               uri: track.uri,
               title: track.name,
               artist: track.artists.map((a) => a.name).join(', '),
-              artwork: track.album.images[0]?.url || '/images/ChatGPT%20Image%20Aug%2010,%202026,%2012_09_56%20AM.png',
+              artwork:
+                track.album.images[0]?.url ||
+                '/images/ChatGPT%20Image%20Aug%2010,%202026,%2012_09_56%20AM.png',
             });
           }
 
@@ -127,7 +130,7 @@ export function useSpotifyPlayer() {
 
         player.addListener('playback_error', ({ message }) => {
           console.error('Spotify Playback Error:', message);
-          setError('Spotify playback error occurred.');
+          setError('Spotify playback error occurred. Ensure Spotify Premium & active session.');
         });
 
         player.connect();
@@ -165,28 +168,42 @@ export function useSpotifyPlayer() {
       return;
     }
 
-    if (isPlaying) {
-      await pausePlayback();
-      setIsPlaying(false);
-    } else {
-      if (deviceId && playlistUri) {
-        await playTrack(deviceId, playlistUri);
-        setIsPlaying(true);
+    try {
+      if (isPlaying) {
+        await pausePlayback();
+        setIsPlaying(false);
       } else {
-        await playTrack(deviceId);
-        setIsPlaying(true);
+        setError(null);
+        const targetPlaylist = playlistUri || `spotify:playlist:${SPOTIFY_CONFIG.playlistId}`;
+        const ok = await playTrack(deviceId, targetPlaylist);
+        if (ok) {
+          setIsPlaying(true);
+        } else {
+          setError('Unable to start playback. Check Spotify Premium or device connection.');
+        }
       }
+    } catch (err) {
+      console.error('Toggle play error:', err);
+      setError(err.message || 'Failed to control Spotify playback');
     }
   }, [isAuthenticated, isPlaying, deviceId, playlistUri, connect]);
 
   const next = useCallback(async () => {
     if (!isAuthenticated) return;
-    await nextTrack();
+    try {
+      await nextTrack();
+    } catch (err) {
+      console.error('Next track error:', err);
+    }
   }, [isAuthenticated]);
 
   const prev = useCallback(async () => {
     if (!isAuthenticated) return;
-    await previousTrack();
+    try {
+      await previousTrack();
+    } catch (err) {
+      console.error('Prev track error:', err);
+    }
   }, [isAuthenticated]);
 
   return {
