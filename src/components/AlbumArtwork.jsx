@@ -1,13 +1,14 @@
 export default function AlbumArtwork({ src, alt, isPlaying }) {
   return (
-    <div className="shrink-0">
+    <div className="shrink-0 relative flex items-center justify-center">
+      {/* Vinyl Disc Container */}
       <div
-        className={`rounded-full overflow-hidden border border-white/10 shadow-lg ${
-          isPlaying ? 'animate-spin-slow' : 'animate-spin-slow paused'
+        className={`relative rounded-full overflow-hidden transition-all duration-500 ${
+          isPlaying ? 'animate-spin-slow shadow-[0_0_20px_rgba(29,185,84,0.4)] border-2 border-[#1DB954]' : 'animate-spin-slow paused border border-white/20 shadow-lg'
         }`}
         style={{
-          width: 'clamp(48px, 8vw, 70px)',
-          height: 'clamp(48px, 8vw, 70px)',
+          width: 'clamp(50px, 8.5vw, 68px)',
+          height: 'clamp(50px, 8.5vw, 68px)',
         }}
       >
         <img
@@ -15,12 +16,16 @@ export default function AlbumArtwork({ src, alt, isPlaying }) {
           alt={alt}
           className="w-full h-full object-cover"
           onError={(e) => {
-            // Fallback gradient if image missing
             e.target.style.display = 'none';
             e.target.parentElement.style.background =
-              'linear-gradient(135deg, rgba(139,55,35,0.8), rgba(80,40,25,0.9))';
+              'linear-gradient(135deg, rgba(139,55,35,0.9), rgba(60,25,12,0.95))';
           }}
         />
+
+        {/* Center Vinyl Spindle Hole */}
+        <div className="absolute inset-0 m-auto w-3 h-3 rounded-full bg-[#140a05] border border-white/30 shadow-inner flex items-center justify-center">
+          <div className="w-1 h-1 rounded-full bg-white/40" />
+        </div>
       </div>
     </div>
   );
