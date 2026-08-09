@@ -24,6 +24,7 @@ export function useSpotifyPlayer() {
   });
   const [error, setError] = useState(null);
   const [playlistUri, setPlaylistUri] = useState(`spotify:playlist:${SPOTIFY_CONFIG.playlistId}`);
+  const [trackUris, setTrackUris] = useState([]);
 
   const playerRef = useRef(null);
 
@@ -43,6 +44,7 @@ export function useSpotifyPlayer() {
         if (data.uri) setPlaylistUri(data.uri);
         if (data.tracks && data.tracks.length > 0) {
           setCurrentTrack(data.tracks[0]);
+          setTrackUris(data.tracks.map((t) => t.uri));
         }
       })
       .catch((err) => {
@@ -175,7 +177,7 @@ export function useSpotifyPlayer() {
       } else {
         setError(null);
         const targetPlaylist = playlistUri || `spotify:playlist:${SPOTIFY_CONFIG.playlistId}`;
-        const ok = await playTrack(deviceId, targetPlaylist);
+        const ok = await playTrack(deviceId, targetPlaylist, trackUris);
         if (ok) {
           setIsPlaying(true);
         } else {
@@ -186,7 +188,7 @@ export function useSpotifyPlayer() {
       console.error('Toggle play error:', err);
       setError(err.message || 'Failed to control Spotify playback');
     }
-  }, [isAuthenticated, isPlaying, deviceId, playlistUri, connect]);
+  }, [isAuthenticated, isPlaying, deviceId, playlistUri, trackUris, connect]);
 
   const next = useCallback(async () => {
     if (!isAuthenticated) return;

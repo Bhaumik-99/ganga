@@ -196,22 +196,36 @@ export async function transferPlayback(deviceId, play = true) {
   return res.ok || res.status === 204;
 }
 
-// 8. Play Track / Playlist
-export async function playTrack(deviceId, uri) {
+// 8. Play Track / Playlist with Direct Track URIs Fallback
+export async function playTrack(deviceId, uri, trackUris = []) {
   let body;
   if (uri) {
     if (uri.startsWith('spotify:track:')) {
       body = { uris: [uri] };
     } else {
-      body = { context_uri: uri };
+      body = {
+        context_uri: uri,
+        offset: { position: 0 },
+      };
     }
+  } else if (trackUris && trackUris.length > 0) {
+    body = { uris: trackUris };
   }
 
   const endpoint = deviceId ? `/me/player/play?device_id=${deviceId}` : '/me/player/play';
-  const res = await spotifyFetch(endpoint, {
+  let res = await spotifyFetch(endpoint, {
     method: 'PUT',
     body: body ? JSON.stringify(body) : undefined,
   });
+
+  // Fallback: If context_uri fails, try playing track URIs directly
+  if (!res.ok && trackUris && trackUris.length > 0) {
+    console.warn('context_uri play failed, attempting direct track URIs fallback...');
+    res = await spotifyFetch(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify({ uris: trackUris }),
+    });
+  }
 
   if (!res.ok && res.status !== 204) {
     let errorDetail = '';
