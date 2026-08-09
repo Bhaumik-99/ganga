@@ -196,7 +196,18 @@ export async function transferPlayback(deviceId, play = true) {
   return res.ok || res.status === 204;
 }
 
-// 8. Play Track / Playlist with Direct Track URIs Fallback
+// Set Repeat Mode ('context' | 'track' | 'off')
+export async function setRepeatMode(state = 'context') {
+  try {
+    const res = await spotifyFetch(`/me/player/repeat?state=${state}`, { method: 'PUT' });
+    return res.ok || res.status === 204;
+  } catch (err) {
+    console.warn('Set repeat mode warning:', err);
+    return false;
+  }
+}
+
+// 8. Play Track / Playlist with Repeat Mode & Direct Track URIs Fallback
 export async function playTrack(deviceId, uri, trackUris = []) {
   let body;
   if (uri) {
@@ -238,6 +249,9 @@ export async function playTrack(deviceId, uri, trackUris = []) {
     }
     throw new Error(errorDetail || `Spotify API playback failed (${res.status})`);
   }
+
+  // Force repeat mode to 'context' so Spotify loops playlist instead of playing random radio autoplay
+  await setRepeatMode('context');
 
   return true;
 }

@@ -8,6 +8,7 @@ import {
   pausePlayback,
   nextTrack,
   previousTrack,
+  setRepeatMode,
   logout,
 } from '../services/spotify';
 import { SPOTIFY_CONFIG } from '../config/spotify';
@@ -27,6 +28,16 @@ export function useSpotifyPlayer() {
   const [trackUris, setTrackUris] = useState([]);
 
   const playerRef = useRef(null);
+  const trackUrisRef = useRef([]);
+  const playlistUriRef = useRef(`spotify:playlist:${SPOTIFY_CONFIG.playlistId}`);
+
+  useEffect(() => {
+    trackUrisRef.current = trackUris;
+  }, [trackUris]);
+
+  useEffect(() => {
+    playlistUriRef.current = playlistUri;
+  }, [playlistUri]);
 
   // Check auth status on mount
   useEffect(() => {
@@ -81,9 +92,10 @@ export function useSpotifyPlayer() {
           setIsReady(true);
           setError(null);
 
-          // Transfer playback to Web Player
+          // Transfer playback to Web Player and set repeat mode
           try {
             await transferPlayback(device_id, false);
+            await setRepeatMode('context');
           } catch (e) {
             console.warn('Transfer playback warning:', e);
           }
@@ -94,7 +106,7 @@ export function useSpotifyPlayer() {
           setIsReady(false);
         });
 
-        player.addListener('player_state_changed', (state) => {
+        player.addListener('player_state_changed', async (state) => {
           if (!state) return;
 
           const track = state.track_window.current_track;
@@ -108,6 +120,21 @@ export function useSpotifyPlayer() {
                 track.album.images[0]?.url ||
                 '/images/ChatGPT%20Image%20Aug%2010,%202026,%2012_09_56%20AM.png',
             });
+
+            // Prevent Spotify from playing random radio tracks outside configured playlist
+            if (
+              trackUrisRef.current &&
+              trackUrisRef.current.length > 0 &&
+              !trackUrisRef.current.includes(track.uri)
+            ) {
+              console.warn('Track outside playlist detected. Loop restarting playlist...');
+              try {
+                await playTrack(device_id, playlistUriRef.current, trackUrisRef.current);
+              } catch (err) {
+                console.warn('Restart playlist error:', err);
+              }
+              return;
+            }
           }
 
           setIsPlaying(!state.paused);
