@@ -7,8 +7,8 @@ export default function AlbumArtwork({ src, alt, isPlaying }) {
           isPlaying ? 'animate-spin-slow shadow-[0_0_20px_rgba(29,185,84,0.4)] border-2 border-[#1DB954]' : 'animate-spin-slow paused border border-white/20 shadow-lg'
         }`}
         style={{
-          width: 'clamp(50px, 8.5vw, 68px)',
-          height: 'clamp(50px, 8.5vw, 68px)',
+          width: 'clamp(44px, 8vw, 68px)',
+          height: 'clamp(44px, 8vw, 68px)',
         }}
       >
         <img
@@ -23,7 +23,7 @@ export default function AlbumArtwork({ src, alt, isPlaying }) {
         />
 
         {/* Center Vinyl Spindle Hole */}
-        <div className="absolute inset-0 m-auto w-3 h-3 rounded-full bg-[#140a05] border border-white/30 shadow-inner flex items-center justify-center">
+        <div className="absolute inset-0 m-auto w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#140a05] border border-white/30 shadow-inner flex items-center justify-center">
           <div className="w-1 h-1 rounded-full bg-white/40" />
         </div>
       </div>

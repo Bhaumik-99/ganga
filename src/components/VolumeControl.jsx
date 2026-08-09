@@ -8,10 +8,8 @@ export default function VolumeControl({ volume, isMuted, onVolumeChange, onToggl
   const displayVolume = isMuted ? 0 : volume;
   const percentage = Math.round(displayVolume * 100);
 
-  // Keep open while hovering or dragging
   const isOpen = isHovered || isDragging;
 
-  // Global mouseup & touchend listener to ensure smooth dragging even outside container
   useEffect(() => {
     if (!isDragging) return;
 
@@ -35,7 +33,7 @@ export default function VolumeControl({ volume, isMuted, onVolumeChange, onToggl
 
   return (
     <div
-      className="relative flex items-center shrink-0"
+      className="relative hidden sm:flex items-center shrink-0"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -54,7 +52,7 @@ export default function VolumeControl({ volume, isMuted, onVolumeChange, onToggl
         {/* Expandable Precision Slider Container */}
         <div
           className={`overflow-hidden transition-all duration-300 ease-out flex items-center gap-2 ${
-            isOpen ? 'w-28 opacity-100' : 'w-0 opacity-0 md:w-20 md:opacity-80'
+            isOpen ? 'w-24 opacity-100' : 'w-14 opacity-70'
           }`}
         >
           {/* Slider input */}
@@ -75,7 +73,7 @@ export default function VolumeControl({ volume, isMuted, onVolumeChange, onToggl
 
           {/* Percentage badge */}
           {isOpen && (
-            <span className="text-[10px] font-mono font-medium text-[#F5EFE2]/90 shrink-0 w-6 text-right select-none">
+            <span className="text-[10px] font-mono font-medium text-[#F5EFE2]/90 shrink-0 w-5 text-right select-none">
               {percentage}%
             </span>
           )}
