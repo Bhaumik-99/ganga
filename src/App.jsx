@@ -31,8 +31,8 @@ export default function App() {
       <LoadingScreen isLoaded={bgLoaded} onFinish={() => setShowContent(true)} />
 
       <div
-        className={`relative w-full h-screen overflow-hidden bg-[#1a0e08] ${
-          showContent ? 'animate-bg-zoom' : 'opacity-0'
+        className={`relative w-full h-screen h-[100dvh] overflow-hidden bg-[#1a0e08] transition-opacity duration-700 ${
+          showContent ? 'animate-bg-zoom opacity-100' : 'opacity-0'
         }`}
         style={{
           backgroundImage: `url(${BG_IMAGE_URL})`,
@@ -50,7 +50,7 @@ export default function App() {
         {/* Hero Hindi typography */}
         {showContent && <HeroTypography />}
 
-        {/* Floating music player controlling Spotify Web Playback SDK */}
+        {/* Floating music player */}
         {showContent && <MusicPlayer />}
       </div>
     </>

@@ -16,7 +16,7 @@ export default function MusicPlayer() {
 
   return (
     /* Outer container: Fixed 100% width flexbox wrapper guarantees horizontal centering on mobile & desktop */
-    <div className="fixed bottom-5 sm:bottom-7 md:bottom-9 left-0 right-0 z-40 flex items-center justify-center pointer-events-none px-3 sm:px-4">
+    <div className="fixed bottom-3 sm:bottom-6 md:bottom-8 left-0 right-0 z-[100] flex items-center justify-center pointer-events-none px-2.5 sm:px-4 pb-[env(safe-area-inset-bottom,0px)]">
       {/* Inner player card */}
       <div
         className={`pointer-events-auto animate-slide-up flex flex-col items-center backdrop-blur-2xl transition-all duration-300 overflow-hidden ${

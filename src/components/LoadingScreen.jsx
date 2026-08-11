@@ -5,42 +5,48 @@ export default function LoadingScreen({ isLoaded, onFinish }) {
   const [shouldRender, setShouldRender] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
 
+  // Safety fallback: Force progress to 100% after 2.5 seconds max
   useEffect(() => {
-    // Smooth progress counter animation
+    const safetyTimer = setTimeout(() => {
+      setProgress(100);
+    }, 2500);
+    return () => clearTimeout(safetyTimer);
+  }, []);
+
+  useEffect(() => {
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval);
           return 100;
         }
-        // Accelerate if image is already loaded, otherwise advance smoothly
-        const increment = isLoaded ? 15 : Math.floor(Math.random() * 8) + 2;
+        const increment = isLoaded ? 20 : Math.floor(Math.random() * 10) + 5;
         return Math.min(prev + increment, 100);
       });
-    }, 60);
+    }, 50);
 
     return () => clearInterval(interval);
   }, [isLoaded]);
 
   useEffect(() => {
-    if (progress === 100 && isLoaded) {
+    if (progress === 100) {
       const timer = setTimeout(() => {
         setFadeOut(true);
         const removeTimer = setTimeout(() => {
           setShouldRender(false);
           if (onFinish) onFinish();
-        }, 800); // match fadeOut CSS duration
+        }, 600);
         return () => clearTimeout(removeTimer);
-      }, 300);
+      }, 200);
       return () => clearTimeout(timer);
     }
-  }, [progress, isLoaded, onFinish]);
+  }, [progress, onFinish]);
 
   if (!shouldRender) return null;
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#140a05] transition-all duration-800 cubic-bezier(0.16, 1, 0.3, 1) ${
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#140a05] transition-all duration-700 cubic-bezier(0.16, 1, 0.3, 1) ${
         fadeOut ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100'
       }`}
       style={{ fontFamily: 'var(--font-hindi)' }}

@@ -176,8 +176,15 @@ body {
 }
 
 .animate-slide-up {
-  animation: slide-up 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
-  opacity: 0;
+  animation: slide-up 1s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-slide-up {
+    animation: none;
+    opacity: 1;
+  }
 }
 
 .animate-bg-zoom {
