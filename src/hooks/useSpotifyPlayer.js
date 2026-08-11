@@ -10,6 +10,7 @@ import {
   previousTrack,
   setRepeatMode,
   setSpotifyVolume,
+  seekPlayback,
   logout,
 } from '../services/spotify';
 import { SPOTIFY_CONFIG } from '../config/spotify';
@@ -30,6 +31,8 @@ export function useSpotifyPlayer() {
   const [error, setError] = useState(null);
   const [playlistUri, setPlaylistUri] = useState(`spotify:playlist:${SPOTIFY_CONFIG.playlistId}`);
   const [trackUris, setTrackUris] = useState([]);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
 
   const playerRef = useRef(null);
   const trackUrisRef = useRef([]);
@@ -143,6 +146,8 @@ export function useSpotifyPlayer() {
           }
 
           setIsPlaying(!state.paused);
+          if (typeof state.position === 'number') setCurrentTime(state.position / 1000);
+          if (typeof state.duration === 'number') setDuration(state.duration / 1000);
         });
 
         player.addListener('initialization_error', ({ message }) => {
@@ -283,6 +288,45 @@ export function useSpotifyPlayer() {
     }
   }, [isMuted, volume, prevVolume, setVolume]);
 
+  // Continuously update position while playing
+  useEffect(() => {
+    if (!isPlaying) return;
+    const interval = setInterval(async () => {
+      if (playerRef.current) {
+        try {
+          const state = await playerRef.current.getCurrentState();
+          if (state) {
+            setCurrentTime(state.position / 1000);
+            setDuration(state.duration / 1000);
+          }
+        } catch {
+          // ignore error if state unavailable
+        }
+      }
+    }, 500);
+    return () => clearInterval(interval);
+  }, [isPlaying]);
+
+  // Seek position (fraction: 0 - 1)
+  const seek = useCallback(
+    async (fraction) => {
+      if (!duration) return;
+      const targetMs = Math.round(fraction * duration * 1000);
+      setCurrentTime(targetMs / 1000);
+
+      if (playerRef.current) {
+        try {
+          await playerRef.current.seek(targetMs);
+          return;
+        } catch (e) {
+          console.warn('SDK seek error:', e);
+        }
+      }
+      await seekPlayback(targetMs);
+    },
+    [duration]
+  );
+
   return {
     isAuthenticated,
     isReady,
@@ -291,6 +335,9 @@ export function useSpotifyPlayer() {
     volume,
     isMuted,
     error,
+    currentTime,
+    duration,
+    seek,
     connect,
     togglePlay,
     next,

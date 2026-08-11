@@ -296,3 +296,17 @@ export async function getPlaybackState() {
   if (res.status === 204 || !res.ok) return null;
   return await res.json();
 }
+
+// 14. Seek Playback Position (in milliseconds)
+export async function seekPlayback(positionMs) {
+  try {
+    const res = await spotifyFetch(`/me/player/seek?position_ms=${Math.round(positionMs)}`, {
+      method: 'PUT',
+    });
+    return res.ok || res.status === 204;
+  } catch (err) {
+    console.warn('Seek playback warning:', err);
+    return false;
+  }
+}
+
