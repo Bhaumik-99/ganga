@@ -95,9 +95,9 @@ export default function MusicPlayer() {
           </div>
         </div>
 
-        {/* Bottom Timeline Seek Slider Row (Safely inset with px-6 sm:px-8) */}
-        <div className="w-full px-5 sm:px-8 pt-1 pb-3 sm:pb-3.5">
-          <div className="w-full pt-1.5 border-t border-white/10">
+        {/* Bottom Timeline Seek Slider Row (Safely inset with generous side padding) */}
+        <div className="w-full px-8 sm:px-14 md:px-16 pt-1 pb-3 sm:pb-4 flex justify-center">
+          <div className="w-full max-w-[560px] pt-1.5 border-t border-white/10">
             <ProgressBar
               currentTime={activePlayer.currentTime}
               duration={activePlayer.duration}

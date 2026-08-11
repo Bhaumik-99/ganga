@@ -59,11 +59,11 @@ export default function ProgressBar({ currentTime = 0, duration = 0, onSeek }) {
   };
 
   return (
-    <div className="w-full flex items-center gap-3 select-none">
+    <div className="w-full flex items-center gap-2.5 sm:gap-3.5 select-none px-1">
       {/* Current Elapsed Time */}
       <span
-        className={`text-[11px] font-mono tabular-nums shrink-0 min-w-[36px] text-left select-none transition-colors ${
-          isDragging ? 'text-[#1DB954] font-bold' : 'text-[#F5EFE2]/70'
+        className={`text-[11px] sm:text-xs font-mono tabular-nums shrink-0 min-w-[38px] text-left select-none transition-colors ${
+          isDragging ? 'text-[#1DB954] font-bold' : 'text-[#F5EFE2]/75'
         }`}
       >
         {formatTime(displayTime)}
@@ -117,7 +117,7 @@ export default function ProgressBar({ currentTime = 0, duration = 0, onSeek }) {
       </div>
 
       {/* Total Duration */}
-      <span className="text-[11px] font-mono tabular-nums shrink-0 min-w-[36px] text-right select-none text-[#F5EFE2]/70">
+      <span className="text-[11px] sm:text-xs font-mono tabular-nums shrink-0 min-w-[38px] text-right select-none text-[#F5EFE2]/75">
         {formatTime(duration)}
       </span>
     </div>
