@@ -16,32 +16,32 @@ export default function MusicPlayer() {
 
   return (
     /* Outer container: Fixed 100% width flexbox wrapper guarantees horizontal centering on mobile & desktop */
-    <div className="fixed bottom-6 sm:bottom-8 md:bottom-10 left-0 right-0 z-40 flex items-center justify-center pointer-events-none px-3 sm:px-4">
+    <div className="fixed bottom-5 sm:bottom-7 md:bottom-9 left-0 right-0 z-40 flex items-center justify-center pointer-events-none px-3 sm:px-4">
       {/* Inner player card */}
       <div
         className={`pointer-events-auto animate-slide-up flex flex-col items-center backdrop-blur-2xl transition-all duration-300 ${
           activePlayer.isPlaying ? 'animate-float' : ''
         }`}
         style={{
-          width: 'clamp(300px, 94vw, 680px)',
-          borderRadius: 'var(--player-radius)',
+          width: 'clamp(320px, 94vw, 660px)',
+          borderRadius: '26px',
           background:
-            'linear-gradient(135deg, rgba(80, 32, 18, 0.88), rgba(45, 18, 10, 0.94))',
-          border: '1px solid rgba(255, 235, 210, 0.18)',
+            'linear-gradient(135deg, rgba(42, 19, 11, 0.94), rgba(22, 10, 5, 0.97))',
+          border: '1px solid rgba(255, 235, 210, 0.15)',
           boxShadow:
-            '0 16px 40px rgba(10, 4, 2, 0.7), 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 245, 235, 0.15)',
+            '0 24px 50px rgba(8, 3, 1, 0.8), 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 245, 235, 0.14)',
           fontFamily: 'var(--font-ui)',
         }}
       >
         {/* Unobtrusive error message */}
         {spotifyPlayer.error && (
-          <div className="w-full px-4 py-1.5 bg-red-950/90 rounded-t-[60px] border-b border-red-500/20 text-center text-[10px] sm:text-[11px] text-red-200/90 tracking-wide">
+          <div className="w-full px-4 py-1.5 bg-red-950/90 rounded-t-[26px] border-b border-red-500/20 text-center text-[10px] sm:text-[11px] text-red-200/90 tracking-wide">
             {spotifyPlayer.error}
           </div>
         )}
 
-        {/* Main player bar content */}
-        <div className="w-full flex items-center justify-between gap-2.5 sm:gap-4 px-3.5 sm:px-6 pt-2.5 sm:pt-3.5 pb-1 sm:pb-1.5">
+        {/* Main player bar top content */}
+        <div className="w-full flex items-center justify-between gap-3 sm:gap-4 px-4 sm:px-6 pt-3 sm:pt-4 pb-2">
           {/* Left: Album artwork */}
           <div className="shrink-0 flex items-center justify-center">
             <AlbumArtwork
@@ -61,7 +61,7 @@ export default function MusicPlayer() {
           </div>
 
           {/* Right: Controls & Volume Control */}
-          <div className="shrink-0 flex items-center gap-2 sm:gap-4">
+          <div className="shrink-0 flex items-center gap-2 sm:gap-3.5">
             <PlayerControls
               isPlaying={activePlayer.isPlaying}
               onToggle={activePlayer.togglePlay || activePlayer.toggle}
@@ -83,7 +83,7 @@ export default function MusicPlayer() {
             {!spotifyPlayer.isAuthenticated && (
               <button
                 onClick={spotifyPlayer.connect}
-                className="px-3 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-xs font-semibold rounded-full transition-all duration-200 shadow-[0_4px_16px_rgba(29,185,84,0.3)] active:scale-95 flex items-center gap-1.5 bg-gradient-to-r from-[#1DB954] to-[#1ed760] hover:brightness-110 text-black font-sans shrink-0 ml-1 sm:ml-2"
+                className="px-3 py-1.5 sm:px-3.5 sm:py-2 text-[10px] sm:text-[11px] font-semibold rounded-full transition-all duration-200 shadow-[0_4px_16px_rgba(29,185,84,0.3)] active:scale-95 flex items-center gap-1.5 bg-gradient-to-r from-[#1DB954] to-[#1ed760] hover:brightness-110 text-black font-sans shrink-0 ml-1"
                 title="Connect Spotify for Full Library Access"
               >
                 <svg className="w-3.5 h-3.5 fill-current shrink-0" viewBox="0 0 24 24">
@@ -96,12 +96,14 @@ export default function MusicPlayer() {
         </div>
 
         {/* Bottom Timeline Seek Slider Row */}
-        <div className="w-full px-4 sm:px-6 pb-2.5 sm:pb-3.5 pt-0.5">
-          <ProgressBar
-            currentTime={activePlayer.currentTime}
-            duration={activePlayer.duration}
-            onSeek={activePlayer.seek}
-          />
+        <div className="w-full px-4 sm:px-6 pt-1 pb-3 sm:pb-3.5">
+          <div className="w-full pt-1.5 border-t border-white/10">
+            <ProgressBar
+              currentTime={activePlayer.currentTime}
+              duration={activePlayer.duration}
+              onSeek={activePlayer.seek}
+            />
+          </div>
         </div>
       </div>
     </div>

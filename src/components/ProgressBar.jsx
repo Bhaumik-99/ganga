@@ -57,14 +57,23 @@ export default function ProgressBar({ currentTime = 0, duration = 0, onSeek }) {
   };
 
   return (
-    <div className="w-full flex flex-col gap-1 select-none">
+    <div className="w-full flex items-center gap-2.5 sm:gap-3 select-none">
+      {/* Current Elapsed Time */}
+      <span
+        className={`text-[10px] sm:text-xs font-mono tabular-nums shrink-0 transition-colors ${
+          isDragging ? 'text-[#1DB954] font-semibold' : 'text-[#F5EFE2]/60'
+        }`}
+      >
+        {formatTime(displayTime)}
+      </span>
+
       {/* Interactive Timeline Slider Track */}
-      <div className="relative flex items-center group cursor-pointer py-1.5">
+      <div className="relative flex-1 flex items-center group cursor-pointer py-1">
         {/* Background Track */}
-        <div className="w-full h-1 sm:h-1.5 bg-white/20 rounded-full overflow-hidden transition-all duration-200 group-hover:h-2">
+        <div className="w-full h-1 sm:h-1.5 bg-white/10 group-hover:bg-white/20 rounded-full overflow-hidden transition-all duration-200 group-hover:h-2">
           {/* Filled Progress Bar */}
           <div
-            className="h-full bg-gradient-to-r from-[#F5F0E8] via-[#E6DCC8] to-[#D8B980] rounded-full transition-all duration-75"
+            className="h-full bg-gradient-to-r from-[#F5F0E8] via-[#E6DCC8] to-[#1DB954] rounded-full transition-all duration-75"
             style={{ width: `${Math.min(100, Math.max(0, progressPercent))}%` }}
           />
         </div>
@@ -86,22 +95,19 @@ export default function ProgressBar({ currentTime = 0, duration = 0, onSeek }) {
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
         />
 
-        {/* Thumb indicator visible on hover or drag */}
+        {/* Glow Thumb indicator on hover or drag */}
         <div
-          className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-[#F5F0E8] rounded-full shadow-[0_0_12px_rgba(245,240,232,0.9)] pointer-events-none transition-transform duration-150 ${
-            isDragging ? 'scale-125' : 'scale-0 group-hover:scale-100'
+          className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-[#F5F0E8] rounded-full shadow-[0_0_10px_rgba(255,255,255,0.9)] pointer-events-none transition-transform duration-150 ${
+            isDragging ? 'scale-125 bg-[#1DB954]' : 'scale-0 group-hover:scale-100'
           }`}
           style={{ left: `${Math.min(100, Math.max(0, progressPercent))}%` }}
         />
       </div>
 
-      {/* Time labels */}
-      <div className="flex justify-between items-center px-0.5 text-[10px] sm:text-xs font-mono tracking-tight text-white/70">
-        <span className={isDragging ? 'text-amber-300 font-semibold' : ''}>
-          {formatTime(displayTime)}
-        </span>
-        <span>{formatTime(duration)}</span>
-      </div>
+      {/* Total Duration */}
+      <span className="text-[10px] sm:text-xs font-mono tabular-nums shrink-0 text-[#F5EFE2]/60">
+        {formatTime(duration)}
+      </span>
     </div>
   );
 }
