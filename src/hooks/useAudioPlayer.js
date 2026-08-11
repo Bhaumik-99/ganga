@@ -18,12 +18,16 @@ export function useAudioPlayer(initialPlaylist) {
     artwork: '',
   };
 
-  // Initialize audio element
+  // Initialize audio element with mobile-compatible attributes
   useEffect(() => {
     if (!audioRef.current) {
-      audioRef.current = new Audio();
-      audioRef.current.volume = 0.8;
-      audioRef.current.preload = 'metadata';
+      const audio = new Audio();
+      audio.volume = 0.8;
+      audio.preload = 'auto';
+      audio.playsInline = true;
+      audio.setAttribute('playsinline', 'true');
+      audio.setAttribute('webkit-playsinline', 'true');
+      audioRef.current = audio;
     }
 
     const audio = audioRef.current;
@@ -34,11 +38,10 @@ export function useAudioPlayer(initialPlaylist) {
       setIsLoaded(true);
     };
     const onEnded = () => {
-      // Auto-advance to next track
       setCurrentIndex((prev) => (prev + 1) % playlist.length);
     };
-    const onError = () => {
-      console.warn('Audio error — track may be missing or unplayable:', audio.src);
+    const onError = (e) => {
+      console.warn('Audio playback error on mobile:', e, audio.src);
       setIsLoaded(false);
     };
 
@@ -63,15 +66,47 @@ export function useAudioPlayer(initialPlaylist) {
     const wasPlaying = isPlaying;
     setIsLoaded(false);
     setCurrentTime(0);
-    setDuration(0);
 
-    audio.src = currentTrack.src;
-    audio.load();
+    if (audio.src !== currentTrack.src) {
+      audio.src = currentTrack.src;
+      audio.load();
+    }
 
     if (wasPlaying) {
-      audio.play().catch(() => {});
+      audio.play().catch((err) => console.warn('Autoplay prevented on mobile:', err));
     }
   }, [currentIndex, currentTrack.src]);
+
+  // Global mobile gesture unlocker for iOS Safari & Mobile Chrome
+  useEffect(() => {
+    const unlockMobileAudio = () => {
+      const audio = audioRef.current;
+      if (audio && currentTrack.src) {
+        if (!audio.src) {
+          audio.src = currentTrack.src;
+          audio.load();
+        }
+        audio
+          .play()
+          .then(() => {
+            if (!isPlaying) {
+              audio.pause();
+            }
+          })
+          .catch(() => {});
+      }
+      window.removeEventListener('touchstart', unlockMobileAudio);
+      window.removeEventListener('click', unlockMobileAudio);
+    };
+
+    window.addEventListener('touchstart', unlockMobileAudio, { once: true });
+    window.addEventListener('click', unlockMobileAudio, { once: true });
+
+    return () => {
+      window.removeEventListener('touchstart', unlockMobileAudio);
+      window.removeEventListener('click', unlockMobileAudio);
+    };
+  }, [currentTrack.src, isPlaying]);
 
   // Add custom local track
   const addTrack = useCallback(
@@ -92,15 +127,29 @@ export function useAudioPlayer(initialPlaylist) {
     [playlist]
   );
 
-  // Play
+  // Play optimized for mobile touch interaction
   const play = useCallback(() => {
     const audio = audioRef.current;
     if (!audio || !currentTrack.src) return;
 
-    audio
-      .play()
-      .then(() => setIsPlaying(true))
-      .catch((err) => console.warn('Play failed:', err));
+    if (!audio.src || audio.src !== currentTrack.src) {
+      audio.src = currentTrack.src;
+      audio.load();
+    }
+
+    const promise = audio.play();
+    if (promise !== undefined) {
+      promise
+        .then(() => setIsPlaying(true))
+        .catch((err) => {
+          console.warn('Play error on mobile, retrying after reload:', err);
+          audio.load();
+          audio
+            .play()
+            .then(() => setIsPlaying(true))
+            .catch(() => setIsPlaying(false));
+        });
+    }
   }, [currentTrack.src]);
 
   // Pause
@@ -144,8 +193,9 @@ export function useAudioPlayer(initialPlaylist) {
       const audio = audioRef.current;
       if (!audio || !duration) return;
 
-      audio.currentTime = fraction * duration;
-      setCurrentTime(audio.currentTime);
+      const targetTime = fraction * duration;
+      audio.currentTime = targetTime;
+      setCurrentTime(targetTime);
     },
     [duration]
   );
