@@ -32,9 +32,10 @@ export default function ProgressBar({ currentTime = 0, duration = 0, onSeek }) {
     }
   };
 
-  const handleMouseDown = () => {
+  const handleMouseDown = (e) => {
     setIsDragging(true);
-    setDragValue(currentTime);
+    const val = parseFloat(e.target.value);
+    setDragValue(val);
   };
 
   const handleMouseUp = () => {
@@ -44,9 +45,10 @@ export default function ProgressBar({ currentTime = 0, duration = 0, onSeek }) {
     }
   };
 
-  const handleTouchStart = () => {
+  const handleTouchStart = (e) => {
     setIsDragging(true);
-    setDragValue(currentTime);
+    const val = parseFloat(e.target.value);
+    setDragValue(val);
   };
 
   const handleTouchEnd = () => {
@@ -57,33 +59,38 @@ export default function ProgressBar({ currentTime = 0, duration = 0, onSeek }) {
   };
 
   return (
-    <div className="w-full flex items-center gap-2.5 sm:gap-3 select-none">
+    <div className="w-full flex items-center gap-3 select-none">
       {/* Current Elapsed Time */}
       <span
-        className={`text-[10px] sm:text-xs font-mono tabular-nums shrink-0 transition-colors ${
-          isDragging ? 'text-[#1DB954] font-semibold' : 'text-[#F5EFE2]/60'
+        className={`text-[11px] font-mono tabular-nums shrink-0 min-w-[36px] text-left select-none transition-colors ${
+          isDragging ? 'text-[#1DB954] font-bold' : 'text-[#F5EFE2]/70'
         }`}
       >
         {formatTime(displayTime)}
       </span>
 
       {/* Interactive Timeline Slider Track */}
-      <div className="relative flex-1 flex items-center group cursor-pointer py-1">
+      <div className="relative flex-1 flex items-center group cursor-pointer py-2">
         {/* Background Track */}
-        <div className="w-full h-1 sm:h-1.5 bg-white/10 group-hover:bg-white/20 rounded-full overflow-hidden transition-all duration-200 group-hover:h-2">
-          {/* Filled Progress Bar */}
+        <div className="w-full h-1.5 bg-white/15 group-hover:bg-white/25 rounded-full overflow-hidden transition-all duration-200 group-hover:h-2">
+          {/* Filled Progress Bar - Instant 1-to-1 sync when dragging */}
           <div
-            className="h-full bg-gradient-to-r from-[#F5F0E8] via-[#E6DCC8] to-[#1DB954] rounded-full transition-all duration-75"
-            style={{ width: `${Math.min(100, Math.max(0, progressPercent))}%` }}
+            className={`h-full bg-gradient-to-r from-[#F5F0E8] via-[#E6DCC8] to-[#1DB954] rounded-full ${
+              isDragging ? '!transition-none' : 'transition-[width] duration-100 ease-out'
+            }`}
+            style={{
+              width: `${Math.min(100, Math.max(0, progressPercent))}%`,
+              transition: isDragging ? 'none' : undefined,
+            }}
           />
         </div>
 
-        {/* Hidden/Styled Range Input for Drag & Seek */}
+        {/* Hidden Range Input for Drag & Seek */}
         <input
           type="range"
           min={0}
           max={duration || 100}
-          step={0.1}
+          step={0.01}
           value={displayTime}
           onChange={handleChange}
           onMouseDown={handleMouseDown}
@@ -95,17 +102,22 @@ export default function ProgressBar({ currentTime = 0, duration = 0, onSeek }) {
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
         />
 
-        {/* Glow Thumb indicator on hover or drag */}
+        {/* Glow Thumb indicator - Instant position sync when dragging */}
         <div
-          className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-[#F5F0E8] rounded-full shadow-[0_0_10px_rgba(255,255,255,0.9)] pointer-events-none transition-transform duration-150 ${
-            isDragging ? 'scale-125 bg-[#1DB954]' : 'scale-0 group-hover:scale-100'
+          className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-[#F5F0E8] rounded-full shadow-[0_0_12px_rgba(255,255,255,0.9)] pointer-events-none ${
+            isDragging
+              ? '!transition-none scale-125 bg-[#1DB954]'
+              : 'transition-[transform,opacity] duration-150 scale-0 group-hover:scale-100'
           }`}
-          style={{ left: `${Math.min(100, Math.max(0, progressPercent))}%` }}
+          style={{
+            left: `${Math.min(100, Math.max(0, progressPercent))}%`,
+            transition: isDragging ? 'none' : undefined,
+          }}
         />
       </div>
 
       {/* Total Duration */}
-      <span className="text-[10px] sm:text-xs font-mono tabular-nums shrink-0 text-[#F5EFE2]/60">
+      <span className="text-[11px] font-mono tabular-nums shrink-0 min-w-[36px] text-right select-none text-[#F5EFE2]/70">
         {formatTime(duration)}
       </span>
     </div>

@@ -19,11 +19,11 @@ export default function MusicPlayer() {
     <div className="fixed bottom-5 sm:bottom-7 md:bottom-9 left-0 right-0 z-40 flex items-center justify-center pointer-events-none px-3 sm:px-4">
       {/* Inner player card */}
       <div
-        className={`pointer-events-auto animate-slide-up flex flex-col items-center backdrop-blur-2xl transition-all duration-300 ${
+        className={`pointer-events-auto animate-slide-up flex flex-col items-center backdrop-blur-2xl transition-all duration-300 overflow-hidden ${
           activePlayer.isPlaying ? 'animate-float' : ''
         }`}
         style={{
-          width: 'clamp(320px, 94vw, 660px)',
+          width: 'clamp(320px, 94vw, 680px)',
           borderRadius: '26px',
           background:
             'linear-gradient(135deg, rgba(42, 19, 11, 0.94), rgba(22, 10, 5, 0.97))',
@@ -41,7 +41,7 @@ export default function MusicPlayer() {
         )}
 
         {/* Main player bar top content */}
-        <div className="w-full flex items-center justify-between gap-3 sm:gap-4 px-4 sm:px-6 pt-3 sm:pt-4 pb-2">
+        <div className="w-full flex items-center justify-between gap-3 sm:gap-4 px-4 sm:px-7 pt-3 sm:pt-4 pb-2">
           {/* Left: Album artwork */}
           <div className="shrink-0 flex items-center justify-center">
             <AlbumArtwork
@@ -95,8 +95,8 @@ export default function MusicPlayer() {
           </div>
         </div>
 
-        {/* Bottom Timeline Seek Slider Row */}
-        <div className="w-full px-4 sm:px-6 pt-1 pb-3 sm:pb-3.5">
+        {/* Bottom Timeline Seek Slider Row (Safely inset with px-6 sm:px-8) */}
+        <div className="w-full px-5 sm:px-8 pt-1 pb-3 sm:pb-3.5">
           <div className="w-full pt-1.5 border-t border-white/10">
             <ProgressBar
               currentTime={activePlayer.currentTime}
